@@ -6,18 +6,18 @@ import sys
 target_hash = "0e000d61c1735636f56154f30046be93b3d71f1abbac3cd9e3f80093fdb357ad"
 
 # Definim seturile de caractere pentru fiecare categorie
-lowercase = string.ascii_lowercase  # a-z
-uppercase = string.ascii_uppercase  # A-Z
-digits = string.digits              # 0-9
+lowercase = string.ascii_lowercase  # literele mici
+uppercase = string.ascii_uppercase  # literele mari
+digits = string.digits              # cifrele
 specials = "!@#$"                   # caractere speciale
 
-# Pentru a opri recursivitatea la timp
+# Variabilele pentru a opri la timp recursivitatea
 gasit = False
 apeluri_recursive = 0
 
 def get_hash(password):
     return hashlib.sha256(password.encode()).hexdigest()
-
+# Verificam daca face parte
 def valid_combination(candidate):
     upper = sum(1 for c in candidate if c in uppercase)
     digit = sum(1 for c in candidate if c in digits)
@@ -42,7 +42,7 @@ def backtrack(candidate):
                 sys.exit(0)  # oprim imediat
         return
 
-    # Alegem caractere doar dacă nu s-a găsit parola
+    # Alegem caractere doar daca nu s-a gasit parola
     for char_set in (lowercase, uppercase, digits, specials):
         for char in char_set:
             if gasit:
