@@ -198,8 +198,8 @@ def cautare_hash_table_pe_mod1000(hash_table_pe_mod1000, cnp_random_de_cautat):
         min_iterations = min(counter_iteratii_lista)
         max_iterations = max(counter_iteratii_lista)
         print("Statistici de cautare")
-        print(f"Minimum iterations: {min_iterations}")
-        print(f"Maximum iterations: {max_iterations}")
+        print(f"Minimul de iteratii: {min_iterations}")
+        print(f"Maximul de iteratii: {max_iterations}")
 
 
 def procentaj_pe_judete(lista_cnp, filename="procentaj_pe_judete.csv"):
