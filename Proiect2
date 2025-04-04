@@ -1,36 +1,78 @@
 import hashlib
-import itertools
 import string
 
-target_hash = "0e000d61c1735636f56154f30046be93b3d71f1abbac3cd9e3f80093fdb357ad"
-
-lowercase = string.ascii_lowercase
-uppercase = string.ascii_uppercase
-digits = string.digits
-specials = "!@#$"
-
-apeluri_recursive = 0
 
 def get_hash(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
-def generare_candidate():
-    global apeluri_recursive
-    for l1 in lowercase:
-        for l2 in lowercase:
-            for l3 in lowercase:
-                for u in uppercase:
-                    for d in digits:
-                        for s in specials:
-                            apeluri_recursive += 1
-                            caractere = [l1, l2, l3, u, d, s]
-                            for perm in itertools.permutations(caractere):
-                                parola = "".join(perm)
-                                if get_hash(parola) == target_hash:
-                                    print(f"Parola găsită: {parola}")
-                                    print(f"Număr apeluri recursive: {apeluri_recursive}")
-                                    return True
-    return False
 
-if not generare_candidate():
+target_hash = "0e000d61c1735636f56154f30046be93b3d71f1abbac3cd9e3f80093fdb357ad"
+
+# Seturi de caractere
+litere_mari = list(string.ascii_uppercase)
+litere_mici = list(string.ascii_lowercase)
+numere = list(string.digits)
+charactere_speciale = ['!', '@', '#', '$']
+
+recursive_calls = 0
+
+
+def dfs(parola_curenta, pozitii_ramase, litere_mari_counter, litere_mici_counter, numere_counter,
+        charactere_speciale_counter):
+    global recursive_calls
+    recursive_calls += 1
+
+    if not pozitii_ramase:
+        if get_hash(parola_curenta) == target_hash:
+            return parola_curenta
+        return None
+
+    position = pozitii_ramase[0]
+    new_remaining = pozitii_ramase[1:]
+
+    # Încercăm fiecare tip de caracter
+    if litere_mari_counter > 0:
+        for char in litere_mari:
+            new_password = parola_curenta[:position] + char + parola_curenta[position + 1:]
+            rezultat = dfs(new_password, new_remaining, litere_mari_counter - 1, litere_mici_counter, numere_counter,
+                           charactere_speciale_counter)
+            if rezultat:
+                return rezultat
+
+    if litere_mici_counter > 0:
+        for char in litere_mici:
+            new_password = parola_curenta[:position] + char + parola_curenta[position + 1:]
+            rezultat = dfs(new_password, new_remaining, litere_mari_counter, litere_mici_counter - 1, numere_counter,
+                           charactere_speciale_counter)
+            if rezultat:
+                return rezultat
+
+    if numere_counter > 0:
+        for char in numere:
+            new_password = parola_curenta[:position] + char + parola_curenta[position + 1:]
+            rezultat = dfs(new_password, new_remaining, litere_mari_counter, litere_mici_counter, numere_counter - 1,
+                           charactere_speciale_counter)
+            if rezultat:
+                return rezultat
+
+    if charactere_speciale_counter > 0:
+        for char in charactere_speciale:
+            new_password = parola_curenta[:position] + char + parola_curenta[position + 1:]
+            rezultat = dfs(new_password, new_remaining, litere_mari_counter, litere_mici_counter, numere_counter,
+                           charactere_speciale_counter - 1)
+            if rezultat:
+                return rezultat
+
+    return None
+
+
+parola_goala = " " * 6  # Placeholder
+positions = list(range(6))
+
+rezultat = dfs(parola_goala, positions, 1, 3, 1, 1)
+
+if rezultat:
+    print(f"Parola găsită: {rezultat}")
+    print(f"Număr apeluri recursive: {recursive_calls}")
+else:
     print("Parola nu a fost găsită.")
