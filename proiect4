@@ -1,0 +1,76 @@
+import customtkinter as ctk
+from datetime import date
+import json
+
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
+
+app = ctk.CTk()
+app.title("Inventarul unei Biblioteci")
+app.geometry("500x500")
+
+def salveaza_in_json(carte):
+    try:
+        with open("carti.json", "r") as f:
+            carti = json.load(f)
+    except FileNotFoundError:
+        carti = []  # dacă fișierul nu există, începe cu o listă goală
+
+    carti.append(carte)
+
+    with open("carti.json", "w") as f:
+        json.dump(carti, f, indent=4)
+
+
+# ---------- Functia de calcul ----------
+
+def calculeaza_varsta():
+    try:
+        titlu = entry_titlu.get()
+        autor = entry_autor.get()
+        an_publicare = int(entry_an_publicare.get())
+        gen = entry_gen.get()
+        numar_de_pagini = int(entry_numar_de_pagini.get())
+        carti={
+        "Titlu":titlu,
+        "autor": autor,
+        "an_publicare": an_publicare,
+        "gen": gen,
+        "numar_de_pagini": numar_de_pagini
+        }
+        salveaza_in_json(carte)
+
+    except:
+        rezultat_varsta.configure(text="Introduceti doar numere valide.")
+        rezultat_viata.configure(text="")
+
+# ---------- Meniu ----------
+
+label_ref = ctk.CTkLabel(app, text="Adaugarea unei noi carti in BAZA DE DATE", font=ctk.CTkFont(size=20, weight="bold"))
+label_ref.pack(pady=10)
+
+frame_ref = ctk.CTkFrame(app)
+frame_ref.pack(pady=5)
+
+entry_titlu = ctk.CTkEntry(frame_ref, placeholder_text="Titlul cartii:")
+entry_autor = ctk.CTkEntry(frame_ref, placeholder_text="Autorul Cartii:")
+entry_an_publicare = ctk.CTkEntry(frame_ref, placeholder_text="Anul publicarii:")
+entry_gen = ctk.CTkEntry(frame_ref, placeholder_text="Genul cartii:")
+entry_numar_de_pagini = ctk.CTkEntry(frame_ref, placeholder_text="Numar de pagini:")
+entry_titlu.pack(side="left", padx=5)
+entry_autor.pack(side="left", padx=5)
+entry_an_publicare.pack(side="left", padx=5)
+entry_gen.pack(side="left",padx=5)
+entry_numar_de_pagini.pack(side="left",padx=5)
+
+
+btn_calculeaza = ctk.CTkButton(app, text="Adauga", command=calculeaza_varsta)
+btn_calculeaza.pack(pady=20)
+
+rezultat_varsta = ctk.CTkLabel(app, text="", font=ctk.CTkFont(size=16))
+rezultat_varsta.pack(pady=5)
+
+rezultat_viata = ctk.CTkLabel(app, text="", font=ctk.CTkFont(size=16))
+rezultat_viata.pack(pady=5)
+
+app.mainloop()
