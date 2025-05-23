@@ -1,7 +1,10 @@
 import customtkinter as ctk
 import tkinter as tk
+from customtkinter import CTkTextbox
 from datetime import date
 import json
+
+from numpy.ma.core import left_shift
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
@@ -9,6 +12,10 @@ ctk.set_default_color_theme("blue")
 app = ctk.CTk()
 app.title("Inventarul unei Biblioteci")
 app.geometry("1280x1080")
+
+def actualizeaza_textbox():
+    textbox.delete("1.0", "end")
+    textbox.insert("1.0", afisare_json())
 
 def salveaza_in_json(carte):
     try:
@@ -23,12 +30,28 @@ def salveaza_in_json(carte):
 
     with open("carti.json", "w") as f:
         json.dump(carti, f, indent=4)
+    actualizeaza_textbox()
 
+# ---------- Functia de Afisare Date JSON ----------
+
+def afisare_json():
+    with open("carti.json", "r") as f:
+        carti = json.load(f)
+
+        lines = []
+        for index, carte in enumerate(carti, start=1):
+            lines.append(f"Carte {index}:")
+            for key, value in carte.items():
+                lines.append(f"{key} {value}")
+            lines.append("")  # empty line between books
+
+        return "\n".join(lines)
 
 
 # ---------- Functia de calcul ----------
 
-def calculeaza_varsta():
+def adaugare_carte():
+    index=0
     try:
         titlu = entry_titlu.get()
         autor = entry_autor.get()
@@ -49,17 +72,19 @@ def calculeaza_varsta():
             raise ValueError("Numere invalide")
 
         carte = {
-            "Titlu": titlu,
-            "autor": autor,
-            "an_publicare": an_publicare,
-            "gen": gen,
-            "numar_de_pagini": numar_de_pagini
+            "Index -": index,
+            "Titlu -": titlu,
+            "Autor -": autor,
+            "An publicare -": an_publicare,
+            "Gen -": gen,
+            "Numar de pagini -": numar_de_pagini
         }
 
         salveaza_in_json(carte)
 
         rezultat_varsta.configure(text="Cartea a fost adăugată cu succes!")
         rezultat_viata.configure(text="")
+        index+=1
 
     except ValueError as e:
         if str(e) == "Titlu invalid":
@@ -93,14 +118,26 @@ entry_an_publicare.pack(side="left", padx=5)
 entry_gen.pack(side="left",padx=5)
 entry_numar_de_pagini.pack(side="left",padx=5)
 
-
-btn_calculeaza = ctk.CTkButton(app, text="Adauga", command=calculeaza_varsta)
-btn_calculeaza.pack(pady=20)
-
 rezultat_varsta = ctk.CTkLabel(app, text="", font=ctk.CTkFont(size=16))
 rezultat_varsta.pack(pady=5)
 
 rezultat_viata = ctk.CTkLabel(app, text="", font=ctk.CTkFont(size=16))
 rezultat_viata.pack(pady=5)
+#  READ
+frame2=ctk.CTkFrame(app)
+afisare=ctk.CTkButton(frame2,command=afisare_json())
+textbox=ctk.CTkTextbox(frame2, height=500, width=500, font=("Comic Sans MS",25))
+textbox.insert("0.0", afisare_json())
+textbox.pack()
+
+frame2.pack(pady=5)
+# FRAME-U SA POZITIONAM BUTOANE
+frame_butoane=ctk.CTkFrame(app)
+# CREATE
+btn_calculeaza = ctk.CTkButton(app, text="Adauga", command=adaugare_carte)
+btn_calculeaza.place(x=500,y=755)
+# DELETE
+btn_stergere = ctk.CTkButton(app, text="Stergere")
+btn_stergere.place(x=650,y=755)
 
 app.mainloop()
