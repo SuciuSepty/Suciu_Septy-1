@@ -1,0 +1,322 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Magazin Septy S.R.L</title>
+    <meta charset="UTF-8" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f6f8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #34495e;
+            margin-bottom: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 700px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #2980b9;
+            color: white;
+        }
+        tbody tr:hover {
+            background-color: #f1f9ff;
+        }
+        button {
+            padding: 6px 12px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button.editBtn {
+            background-color: #27ae60;
+            color: white;
+            margin-right: 6px;
+        }
+        button.deleteBtn {
+            background-color: #e74c3c;
+            color: white;
+        }
+        #formContainer {
+            margin-top: 20px;
+            width: 700px;
+            padding: 15px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            display: none;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        #formContainer input {
+            padding: 8px 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: calc(33% - 14px);
+        }
+        #showFormBtn {
+            margin-bottom: 15px;
+            background-color: #2980b9;
+            color: white;
+            border-radius: 5px;
+        }
+        #submitBtn, #cancelBtn {
+            padding: 8px 20px;
+            margin-left: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        #submitBtn {
+            background-color: #27ae60;
+            color: white;
+        }
+        #cancelBtn {
+            background-color: #95a5a6;
+            color: white;
+        }
+        #buttonsWrapper {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+        @media (max-width: 760px) {
+            table, #formContainer {
+                width: 95%;
+            }
+            #formContainer input {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            #buttonsWrapper {
+                flex-direction: column;
+                gap: 10px;
+            }
+            #buttonsWrapper button {
+                width: 100%;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Magazin Septy S.R.L</h1>
+    <button id="showFormBtn">Adaugă articol</button>
+    <table id="itemsTable" aria-label="Table with list of articles">
+        <thead>
+            <tr>
+                <th>ID</th><th>Nume</th><th>Preț</th><th>Review</th><th>Acțiuni</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <div id="formContainer" aria-label="Article form">
+        <input type="text" id="itemName" placeholder="Nume" aria-label="Nume articol" />
+        <input type="number" id="itemPrice" placeholder="Preț" step="0.01" min="0" aria-label="Preț articol" />
+        <input type="number" id="itemReview" placeholder="Review (1-5)" step="0.1" min="1" max="5" aria-label="Review articol" />
+        <div id="buttonsWrapper">
+            <button id="submitBtn">Trimite</button>
+            <button id="cancelBtn">Anulează</button>
+        </div>
+    </div>
+
+    <script>
+        const showFormBtn = document.getElementById('showFormBtn');
+        const formContainer = document.getElementById('formContainer');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const itemNameInput = document.getElementById('itemName');
+        const itemPriceInput = document.getElementById('itemPrice');
+        const itemReviewInput = document.getElementById('itemReview');
+        const itemsTableBody = document.querySelector('#itemsTable tbody');
+
+        let editMode = false;
+        let editItemId = null;
+
+        showFormBtn.addEventListener('click', () => {
+            showForm();
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            hideForm();
+        });
+
+        submitBtn.addEventListener('click', () => {
+            submitItem();
+        });
+
+        function showForm() {
+            formContainer.style.display = 'flex';
+            showFormBtn.style.display = 'none';
+            editMode = false;
+            editItemId = null;
+            clearForm();
+        }
+
+        function hideForm() {
+            formContainer.style.display = 'none';
+            showFormBtn.style.display = 'inline-block';
+            clearForm();
+            editMode = false;
+            editItemId = null;
+        }
+
+        function clearForm() {
+            itemNameInput.value = '';
+            itemPriceInput.value = '';
+            itemReviewInput.value = '';
+            submitBtn.textContent = 'Trimite';
+        }
+
+        function loadItems() {
+            fetch('/items')
+                .then(res => res.json())
+                .then(data => {
+                    itemsTableBody.innerHTML = '';
+                    data.forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${item.id}</td>
+                            <td>${item.name}</td>
+                            <td>${item.price.toFixed(2)} RON</td>
+                            <td>${item.review.toFixed(1)}</td>
+                            <td>
+                                <button class="editBtn" data-id="${item.id}">Modifică</button>
+                                <button class="deleteBtn" data-id="${item.id}" style="background-color:#e74c3c; margin-left:5px;">Șterge</button>
+                            </td>`;
+                        itemsTableBody.appendChild(tr);
+                    });
+
+                    document.querySelectorAll('.editBtn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const id = btn.getAttribute('data-id');
+                            enterEditMode(id);
+                        });
+                    });
+                    document.querySelectorAll('.deleteBtn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const id = btn.getAttribute('data-id');
+                            deleteItem(id);
+                        });
+                    });
+                })
+                .catch(err => {
+                    alert("Eroare la încărcarea articolelor.");
+                    console.error('Eroare:', err);
+                });
+        }
+
+        function submitItem() {
+            const name = itemNameInput.value.trim();
+            const price = parseFloat(itemPriceInput.value);
+            const review = parseFloat(itemReviewInput.value);
+
+            if (!name) {
+                alert('Completează numele articolului!');
+                return;
+            }
+            if (isNaN(price) || price < 0) {
+                alert('Preț invalid!');
+                return;
+            }
+            if (isNaN(review) || review < 1 || review > 5) {
+                alert('Review trebuie să fie între 1 și 5!');
+                return;
+            }
+
+            const itemData = { name, price, review };
+
+            if (editMode && editItemId) {
+                fetch('/items/' + editItemId, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(itemData)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.eroare) {
+                        alert('Eroare: ' + data.eroare);
+                    } else {
+                        alert('Articol actualizat cu succes!');
+                        hideForm();
+                        loadItems();
+                    }
+                })
+                .catch(() => alert('Eroare la actualizare.'));
+            } else {
+                fetch('/items', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(itemData)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.eroare) {
+                        alert('Eroare: ' + data.eroare);
+                    } else {
+                        alert('Articol adăugat cu succes!');
+                        hideForm();
+                        loadItems();
+                    }
+                })
+                .catch(() => alert('Eroare la adăugare.'));
+            }
+        }
+
+        function enterEditMode(id) {
+            fetch('/items/' + id)
+                .then(res => res.json())
+                .then(item => {
+                    editMode = true;
+                    editItemId = id;
+                    formContainer.style.display = 'flex';
+                    showFormBtn.style.display = 'none';
+
+                    itemNameInput.value = item.name;
+                    itemPriceInput.value = item.price;
+                    itemReviewInput.value = item.review;
+
+                    submitBtn.textContent = 'Actualizează';
+                })
+                .catch(() => alert('Eroare la încărcarea articolului.'));
+        }
+
+        function deleteItem(id) {
+            if (confirm('Sigur dorești să ștergi articolul cu ID ' + id + '?')) {
+                fetch('/items/' + id, { method: 'DELETE' })
+                    .then(res => {
+                        if (res.ok) {
+                            alert('Articol șters cu succes.');
+                            loadItems();
+                        } else {
+                            alert('Eroare la ștergere.');
+                        }
+                    })
+                    .catch(() => alert('Eroare la ștergere.'));
+            }
+        }
+
+        // Încarcă articolele când pagina se încarcă
+        loadItems();
+    </script>
+</body>
+</html>
