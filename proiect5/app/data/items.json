@@ -1,0 +1,26 @@
+[
+    {
+        "id": 2,
+        "name": "Scaun Gaming",
+        "price": 29.99,
+        "review": 5
+    },
+    {
+        "name": "Test",
+        "price": 53,
+        "review": 1,
+        "id": 3
+    },
+    {
+        "name": "Tastatura Gaming",
+        "price": 531,
+        "review": 1.5,
+        "id": 4
+    },
+    {
+        "name": "Scaun Gaming",
+        "price": 5353,
+        "review": 1,
+        "id": 5
+    }
+]
