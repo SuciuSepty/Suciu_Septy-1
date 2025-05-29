@@ -1,57 +1,94 @@
 import customtkinter as ctk
 import tkinter as tk
 from customtkinter import CTkTextbox
-from datetime import date
 import json
 
-from numpy.ma.core import left_shift
-
+# Setari initiale pentru tema aplicatiei
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
+# Initializare aplicatie
 app = ctk.CTk()
 app.title("Inventarul unei Biblioteci")
 app.geometry("1280x1080")
 
+# ---------- Functii ----------
+
+# Sterge cartea dupa index si reindexeaza lista
+def sterge_dupa_index(index_text):
+    try:
+        index = int(index_text)
+        with open("carti.json", "r") as f:
+            carti = json.load(f)
+
+        carte_gasita = False
+        for i, carte in enumerate(carti):
+            if carte.get("Index -") == index:
+                del carti[i]
+                carte_gasita = True
+                break
+
+        if not carte_gasita:
+            rezultat_varsta.configure(text="Index inexistent. Nimic de sters.")
+            return
+
+        # Reindexare dupa stergere
+        for i, carte in enumerate(carti):
+            carte["Index -"] = i
+
+        with open("carti.json", "w") as f:
+            json.dump(carti, f, indent=4)
+
+        actualizeaza_textbox()
+        rezultat_varsta.configure(text="Cartea a fost stearsa cu succes.")
+        rezultat_viata.configure(text="")
+
+    except ValueError:
+        rezultat_varsta.configure(text="Introduce un index numeric valid.")
+        rezultat_viata.configure(text="")
+
+# Actualizeaza continutul textbox-ului cu datele din fisier
 def actualizeaza_textbox():
     textbox.delete("1.0", "end")
     textbox.insert("1.0", afisare_json())
 
+# Returneaza continutul fisierului JSON sub forma de string
+def afisare_json():
+    try:
+        with open("carti.json", "r") as f:
+            carti = json.load(f)
+    except FileNotFoundError:
+        return "Fisierul JSON nu exista."
+
+    lines = []
+    for index, carte in enumerate(carti, start=1):
+        lines.append(f"Carte {index}:")
+        for key, value in carte.items():
+            lines.append(f"{key} {value}")
+        lines.append("")
+    return "\n".join(lines)
+
+# Salveaza o noua carte in fisierul JSON
 def salveaza_in_json(carte):
     try:
         with open("carti.json", "r") as f:
             carti = json.load(f)
     except FileNotFoundError:
-        carti = []  # dacă fișierul nu există, începe cu o listă goal
+        carti = []
+
+    carte["Index -"] = len(carti)
     carti.append(carte)
-    CorectVariable=tk.StringVar(app,value="Ati introdus datele cu succes in baza de date.")
-    Succes=ctk.CTkLabel(app,textvariable=CorectVariable)
-    Succes.pack()
 
     with open("carti.json", "w") as f:
         json.dump(carti, f, indent=4)
+
+    CorectVariable = tk.StringVar(app, value="Ati introdus datele cu succes in baza de date.")
+    Succes = ctk.CTkLabel(app, textvariable=CorectVariable)
+    Succes.pack()
     actualizeaza_textbox()
 
-# ---------- Functia de Afisare Date JSON ----------
-
-def afisare_json():
-    with open("carti.json", "r") as f:
-        carti = json.load(f)
-
-        lines = []
-        for index, carte in enumerate(carti, start=1):
-            lines.append(f"Carte {index}:")
-            for key, value in carte.items():
-                lines.append(f"{key} {value}")
-            lines.append("")  # empty line between books
-
-        return "\n".join(lines)
-
-
-# ---------- Functia de calcul ----------
-
+# Adauga o carte noua pe baza datelor introduse de utilizator
 def adaugare_carte():
-    index=0
     try:
         titlu = entry_titlu.get()
         autor = entry_autor.get()
@@ -59,7 +96,7 @@ def adaugare_carte():
         gen = entry_gen.get()
         numar_de_pagini = int(entry_numar_de_pagini.get())
 
-        # Verifică dacă câmpurile Titlu, Autor și Gen conțin cifre
+        # Validare date
         if any(char.isdigit() for char in titlu):
             raise ValueError("Titlu invalid")
         if any(char.isdigit() for char in autor):
@@ -67,12 +104,10 @@ def adaugare_carte():
         if any(char.isdigit() for char in gen):
             raise ValueError("Gen invalid")
 
-        # Verifică dacă Anul publicării și Numărul de pagini sunt numere
         if not entry_an_publicare.get().isdigit() or not entry_numar_de_pagini.get().isdigit():
             raise ValueError("Numere invalide")
 
         carte = {
-            "Index -": index,
             "Titlu -": titlu,
             "Autor -": autor,
             "An publicare -": an_publicare,
@@ -81,29 +116,95 @@ def adaugare_carte():
         }
 
         salveaza_in_json(carte)
-
-        rezultat_varsta.configure(text="Cartea a fost adăugată cu succes!")
+        rezultat_varsta.configure(text="Cartea a fost adaugata cu succes!")
         rezultat_viata.configure(text="")
-        index+=1
 
     except ValueError as e:
         if str(e) == "Titlu invalid":
-            rezultat_varsta.configure(text="Eroare: Nu introduceți cifre în câmpul Titlu.")
+            rezultat_varsta.configure(text="Eroare: Nu introduceti cifre in campul Titlu.")
         elif str(e) == "Autor invalid":
-            rezultat_varsta.configure(text="Eroare: Nu introduceți cifre în câmpul Autor.")
+            rezultat_varsta.configure(text="Eroare: Nu introduceti cifre in campul Autor.")
         elif str(e) == "Gen invalid":
-            rezultat_varsta.configure(text="Eroare: Nu introduceți cifre în câmpul Gen.")
+            rezultat_varsta.configure(text="Eroare: Nu introduceti cifre in campul Gen.")
         else:
-            rezultat_varsta.configure(text="Eroare: Introduceți doar numere în câmpurile An publicare și Număr de pagini.")
-
+            rezultat_varsta.configure(text="Eroare: Introduceti doar numere in campurile An publicare si Numar de pagini.")
         rezultat_viata.configure(text="")
 
+# Editeaza o carte existenta pe baza indexului
+def editeaza_dupa_index(index_text):
+    try:
+        index = int(index_text)
+        with open("carti.json", "r") as f:
+            carti = json.load(f)
 
-# ---------- Meniu ----------
+        carte_gasita = None
+        for i, carte in enumerate(carti):
+            if str(carte.get("Index -")) == str(index):
+                carte_gasita = carte
+                pozitia = i
+                break
 
+        if carte_gasita is None:
+            rezultat_varsta.configure(text="Index invalid sau inexistent.")
+            return
+
+        # Fereastra pentru editare
+        fereastra_edit = ctk.CTkToplevel(app)
+        fereastra_edit.title("Editare carte")
+        fereastra_edit.geometry("500x400")
+
+        titlu_entry = ctk.CTkEntry(fereastra_edit, placeholder_text="Titlu")
+        titlu_entry.insert(0, carte_gasita.get("Titlu -", ""))
+        autor_entry = ctk.CTkEntry(fereastra_edit, placeholder_text="Autor")
+        autor_entry.insert(0, carte_gasita.get("Autor -", ""))
+        an_entry = ctk.CTkEntry(fereastra_edit, placeholder_text="An publicare")
+        an_entry.insert(0, str(carte_gasita.get("An publicare -", "")))
+        gen_entry = ctk.CTkEntry(fereastra_edit, placeholder_text="Gen")
+        gen_entry.insert(0, carte_gasita.get("Gen -", ""))
+        pagini_entry = ctk.CTkEntry(fereastra_edit, placeholder_text="Numar de pagini")
+        pagini_entry.insert(0, str(carte_gasita.get("Numar de pagini -", "")))
+
+        titlu_entry.pack(pady=5)
+        autor_entry.pack(pady=5)
+        an_entry.pack(pady=5)
+        gen_entry.pack(pady=5)
+        pagini_entry.pack(pady=5)
+
+        # Salveaza modificarile introduse
+        def salveaza_modificari():
+            try:
+                carte_noua = {
+                    "Index -": index,
+                    "Titlu -": titlu_entry.get(),
+                    "Autor -": autor_entry.get(),
+                    "An publicare -": int(an_entry.get()),
+                    "Gen -": gen_entry.get(),
+                    "Numar de pagini -": int(pagini_entry.get())
+                }
+                carti[pozitia] = carte_noua
+
+                with open("carti.json", "w") as f:
+                    json.dump(carti, f, indent=4)
+
+                rezultat_varsta.configure(text="Cartea a fost editata cu succes.")
+                actualizeaza_textbox()
+                fereastra_edit.destroy()
+            except Exception as e:
+                rezultat_varsta.configure(text=f"Eroare la salvare: {str(e)}")
+
+        btn_salveaza = ctk.CTkButton(fereastra_edit, text="Salveaza modificarile", command=salveaza_modificari)
+        btn_salveaza.pack(pady=20)
+
+    except ValueError:
+        rezultat_varsta.configure(text="Introduceti un index numeric valid.")
+
+# ---------- UI ----------
+
+# Eticheta principala
 label_ref = ctk.CTkLabel(app, text="Adaugarea unei noi carti in BAZA DE DATE", font=ctk.CTkFont(size=20, weight="bold"))
 label_ref.pack(pady=10)
 
+# Frame pentru introducere date
 frame_ref = ctk.CTkFrame(app)
 frame_ref.pack(pady=5)
 
@@ -115,29 +216,40 @@ entry_numar_de_pagini = ctk.CTkEntry(frame_ref, placeholder_text="Numar de pagin
 entry_titlu.pack(side="left", padx=5)
 entry_autor.pack(side="left", padx=5)
 entry_an_publicare.pack(side="left", padx=5)
-entry_gen.pack(side="left",padx=5)
-entry_numar_de_pagini.pack(side="left",padx=5)
+entry_gen.pack(side="left", padx=5)
+entry_numar_de_pagini.pack(side="left", padx=5)
 
+# Etichete pentru rezultate
 rezultat_varsta = ctk.CTkLabel(app, text="", font=ctk.CTkFont(size=16))
 rezultat_varsta.pack(pady=5)
 
 rezultat_viata = ctk.CTkLabel(app, text="", font=ctk.CTkFont(size=16))
 rezultat_viata.pack(pady=5)
-#  READ
-frame2=ctk.CTkFrame(app)
-afisare=ctk.CTkButton(frame2,command=afisare_json())
-textbox=ctk.CTkTextbox(frame2, height=500, width=500, font=("Comic Sans MS",25))
+
+# Textbox pentru afisarea cartilor
+frame2 = ctk.CTkFrame(app)
+textbox = ctk.CTkTextbox(frame2, height=500, width=500, font=("Comic Sans MS", 20))
 textbox.insert("0.0", afisare_json())
 textbox.pack()
-
 frame2.pack(pady=5)
-# FRAME-U SA POZITIONAM BUTOANE
-frame_butoane=ctk.CTkFrame(app)
-# CREATE
-btn_calculeaza = ctk.CTkButton(app, text="Adauga", command=adaugare_carte)
-btn_calculeaza.place(x=500,y=755)
-# DELETE
-btn_stergere = ctk.CTkButton(app, text="Stergere")
-btn_stergere.place(x=650,y=755)
 
+# Entry + buton pentru editare dupa index
+frame_editare = ctk.CTkFrame(app)
+entry_index_edit = ctk.CTkEntry(frame_editare, placeholder_text="Introdu index-ul pentru editare")
+entry_index_edit.pack(side="left", padx=10)
+btn_editeaza = ctk.CTkButton(frame_editare, text="Editeaza", command=lambda: editeaza_dupa_index(entry_index_edit.get()))
+btn_editeaza.pack(side="left")
+frame_editare.pack(pady=10)
+
+# Butoane principale pentru adaugare si stergere
+btn_calculeaza = ctk.CTkButton(app, text="Adauga", command=adaugare_carte)
+btn_calculeaza.place(x=500, y=755)
+
+entry_index_stergere = ctk.CTkEntry(app, placeholder_text="Index pentru stergere")
+entry_index_stergere.place(x=500, y=800)
+
+btn_stergere = ctk.CTkButton(app, text="Sterge", command=lambda: sterge_dupa_index(entry_index_stergere.get()))
+btn_stergere.place(x=650, y=800)
+
+# Porneste aplicatia
 app.mainloop()
