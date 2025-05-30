@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,22 +7,89 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
-            background-color: #f4f6f8;
+            background-color: #f4f6f8; /* Light grey background */
             display: flex;
             flex-direction: column;
             align-items: center;
+            color: #333; /* Darker default text color */
+        }
+        .title-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+        .logo-img {
+            height: 60px; /* Slightly larger logo */
+            margin-right: 10px;
         }
         h1 {
-            color: #34495e;
-            margin-bottom: 20px;
+            color: #333; /* Dark grey for title */
+            margin-bottom: 0;
+            margin-top: 0;
         }
+
+        /* Search Area Enhancements */
+        #searchControls {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Space between search elements */
+            margin-left: 20px; /* Space from title */
+        }
+        #searchType {
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: white;
+        }
+        #searchContainer {
+            display: flex;
+            align-items: center;
+            position: relative; /* For clear button positioning */
+        }
+        #searchInput {
+            padding: 8px 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px 0 0 4px; /* Rounded left corners */
+            margin-right: 0;
+        }
+        #clearSearchBtn {
+            position: absolute;
+            right: 60px; /* Adjust based on search button width */
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #888;
+            padding: 0 5px;
+            display: none; /* Hidden by default, shown when input has text */
+        }
+        #searchButton {
+            padding: 8px 12px;
+            font-size: 14px;
+            background-color: #C00000; /* UTCN Red */
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0; /* Rounded right corners */
+            cursor: pointer;
+            margin-left: -1px; /* Overlap border */
+        }
+        #searchButton:hover {
+            background-color: #A00000; /* Darker UTCN Red */
+        }
+
         table {
             border-collapse: collapse;
-            width: 700px;
+            width: 800px; /* Increased width slightly */
             background: #fff;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             border-radius: 8px;
             overflow: hidden;
+            margin-top: 20px;
         }
         th, td {
             padding: 12px 15px;
@@ -31,27 +97,39 @@
             border-bottom: 1px solid #ddd;
         }
         th {
-            background-color: #2980b9;
+            background-color: #C00000; /* UTCN Red for table header */
             color: white;
+            cursor: pointer; /* Indicate sortable columns */
+        }
+        th .sort-arrow { /* For sort indicators */
+            margin-left: 5px;
+            font-size: 0.8em;
         }
         tbody tr:hover {
             background-color: #f1f9ff;
         }
-        button {
+        button { /* General button styling */
             padding: 6px 12px;
             font-size: 14px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            transition: background-color 0.2s ease;
         }
         button.editBtn {
-            background-color: #27ae60;
+            background-color: #5cb85c; /* Green for edit */
             color: white;
             margin-right: 6px;
         }
+        button.editBtn:hover {
+            background-color: #4cae4c;
+        }
         button.deleteBtn {
-            background-color: #e74c3c;
+            background-color: #d9534f; /* A slightly different red for delete */
             color: white;
+        }
+        button.deleteBtn:hover {
+            background-color: #c9302c;
         }
         #formContainer {
             margin-top: 20px;
@@ -74,25 +152,27 @@
         }
         #showFormBtn {
             margin-bottom: 15px;
-            background-color: #2980b9;
+            background-color: #C00000; /* UTCN Red */
             color: white;
             border-radius: 5px;
+            padding: 10px 15px;
         }
-        #submitBtn, #cancelBtn {
-            padding: 8px 20px;
-            margin-left: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
+        #showFormBtn:hover {
+            background-color: #A00000; /* Darker UTCN Red */
         }
         #submitBtn {
-            background-color: #27ae60;
+            background-color: #C00000; /* UTCN Red */
             color: white;
         }
+        #submitBtn:hover {
+            background-color: #A00000;
+        }
         #cancelBtn {
-            background-color: #95a5a6;
+            background-color: #777; /* Grey for cancel */
             color: white;
+        }
+        #cancelBtn:hover {
+            background-color: #666;
         }
         #buttonsWrapper {
             margin-top: 10px;
@@ -100,6 +180,32 @@
             align-items: center;
         }
         @media (max-width: 760px) {
+            .title-container {
+                flex-direction: column;
+                align-items: center; /* Center items on smaller screens */
+            }
+            #searchControls {
+                flex-direction: column;
+                width: 100%;
+                margin-left: 0;
+                gap: 10px;
+            }
+            #searchType {
+                width: 100%;
+            }
+            #searchContainer {
+                width: 100%;
+            }
+            #searchInput {
+                flex-grow: 1;
+                border-radius: 4px 0 0 4px; /* Ensure consistency */
+            }
+            #clearSearchBtn {
+                right: 50px; /* Adjust for smaller screens if search button text wraps */
+            }
+            #searchButton {
+                 border-radius: 0 4px 4px 0; /* Ensure consistency */
+            }
             table, #formContainer {
                 width: 95%;
             }
@@ -119,12 +225,30 @@
     </style>
 </head>
 <body>
-    <h1>Magazin Septy S.R.L</h1>
+    <div class="title-container">
+        <img src="/static/images/UTCN.png" alt="UTCN Logo" class="logo-img">
+        <h1>Magazin Septy S.R.L</h1>
+        <div id="searchControls">
+            <select id="searchType" aria-label="Tip căutare">
+                <option value="name">Nume</option>
+                <option value="id">ID</option>
+            </select>
+            <div id="searchContainer">
+                <input type="text" id="searchInput" placeholder="Caută..." aria-label="Căutare articol">
+                <button id="clearSearchBtn" aria-label="Șterge căutarea">&times;</button>
+                <button id="searchButton">Caută</button>
+            </div>
+        </div>
+    </div>
     <button id="showFormBtn">Adaugă articol</button>
     <table id="itemsTable" aria-label="Table with list of articles">
         <thead>
             <tr>
-                <th>ID</th><th>Nume</th><th>Preț</th><th>Review</th><th>Acțiuni</th>
+                <th data-sort-key="id">ID <span class="sort-arrow"></span></th>
+                <th data-sort-key="name">Nume <span class="sort-arrow"></span></th>
+                <th data-sort-key="price">Preț <span class="sort-arrow"></span></th>
+                <th data-sort-key="review">Review <span class="sort-arrow"></span></th>
+                <th>Acțiuni</th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -148,9 +272,32 @@
         const itemPriceInput = document.getElementById('itemPrice');
         const itemReviewInput = document.getElementById('itemReview');
         const itemsTableBody = document.querySelector('#itemsTable tbody');
+        
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        const searchTypeSelect = document.getElementById('searchType'); // New
+        const clearSearchBtn = document.getElementById('clearSearchBtn'); // New
+        const tableHeaders = document.querySelectorAll("#itemsTable th[data-sort-key]"); // New
 
         let editMode = false;
         let editItemId = null;
+        let allItems = [];
+        let currentSort = { key: 'id', direction: 'asc' }; // New: for sorting state
+
+        // Show/Hide Clear Search Button
+        searchInput.addEventListener('input', () => {
+            clearSearchBtn.style.display = searchInput.value ? 'block' : 'none';
+            if (!searchInput.value) { // Also filter if input is cleared manually
+                filterItems();
+            }
+        });
+
+        clearSearchBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            clearSearchBtn.style.display = 'none';
+            searchInput.focus();
+            filterItems(); // Re-filter with empty search term
+        });
 
         showFormBtn.addEventListener('click', () => {
             showForm();
@@ -163,6 +310,72 @@
         submitBtn.addEventListener('click', () => {
             submitItem();
         });
+
+        searchButton.addEventListener('click', () => {
+            filterItems();
+        });
+
+        searchInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                filterItems();
+            }
+        });
+        
+        searchTypeSelect.addEventListener('change', () => { // Re-filter when search type changes
+            filterItems();
+        });
+
+        // Sort Functionality
+        tableHeaders.forEach(header => {
+            header.addEventListener('click', () => {
+                const sortKey = header.getAttribute('data-sort-key');
+                if (currentSort.key === sortKey) {
+                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentSort.key = sortKey;
+                    currentSort.direction = 'asc';
+                }
+                sortItems();
+                updateSortArrows();
+            });
+        });
+
+        function updateSortArrows() {
+            tableHeaders.forEach(header => {
+                const arrowSpan = header.querySelector('.sort-arrow');
+                if (header.getAttribute('data-sort-key') === currentSort.key) {
+                    arrowSpan.textContent = currentSort.direction === 'asc' ? '▲' : '▼';
+                } else {
+                    arrowSpan.textContent = '';
+                }
+            });
+        }
+
+        function sortItems() {
+            allItems.sort((a, b) => {
+                let valA = a[currentSort.key];
+                let valB = b[currentSort.key];
+
+                // Handle numeric or string comparison
+                if (typeof valA === 'string') valA = valA.toLowerCase();
+                if (typeof valB === 'string') valB = valB.toLowerCase();
+                
+                // For price and review, ensure they are numbers if they come as strings from input/json
+                if (currentSort.key === 'price' || currentSort.key === 'review' || currentSort.key === 'id') {
+                    valA = parseFloat(valA);
+                    valB = parseFloat(valB);
+                }
+
+                if (valA < valB) {
+                    return currentSort.direction === 'asc' ? -1 : 1;
+                }
+                if (valA > valB) {
+                    return currentSort.direction === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+            renderTable(allItems);
+        }
 
         function showForm() {
             formContainer.style.display = 'flex';
@@ -187,42 +400,95 @@
             submitBtn.textContent = 'Trimite';
         }
 
+        function renderTable(itemsToRender) {
+            itemsTableBody.innerHTML = '';
+            if (itemsToRender.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 5; // Span across all columns
+                td.textContent = searchInput.value ? 'Niciun articol găsit pentru căutarea curentă.' : 'Niciun articol în listă.';
+                td.style.textAlign = 'center';
+                tr.appendChild(td);
+                itemsTableBody.appendChild(tr);
+            } else {
+                itemsToRender.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${item.id}</td>
+                        <td>${item.name}</td>
+                        <td>${item.price.toFixed(2)} RON</td>
+                        <td>${item.review.toFixed(1)}</td>
+                        <td>
+                            <button class="editBtn" data-id="${item.id}">Modifică</button>
+                            <button class="deleteBtn" data-id="${item.id}" style="background-color:#e74c3c; margin-left:5px;">Șterge</button>
+                        </td>`;
+                    itemsTableBody.appendChild(tr);
+                });
+
+                document.querySelectorAll('.editBtn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const id = btn.getAttribute('data-id');
+                        enterEditMode(id);
+                    });
+                });
+                document.querySelectorAll('.deleteBtn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const id = btn.getAttribute('data-id');
+                        deleteItem(id);
+                    });
+                });
+            }
+        }
+
         function loadItems() {
             fetch('/items')
                 .then(res => res.json())
                 .then(data => {
-                    itemsTableBody.innerHTML = '';
-                    data.forEach(item => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td>${item.id}</td>
-                            <td>${item.name}</td>
-                            <td>${item.price.toFixed(2)} RON</td>
-                            <td>${item.review.toFixed(1)}</td>
-                            <td>
-                                <button class="editBtn" data-id="${item.id}">Modifică</button>
-                                <button class="deleteBtn" data-id="${item.id}" style="background-color:#e74c3c; margin-left:5px;">Șterge</button>
-                            </td>`;
-                        itemsTableBody.appendChild(tr);
-                    });
-
-                    document.querySelectorAll('.editBtn').forEach(btn => {
-                        btn.addEventListener('click', () => {
-                            const id = btn.getAttribute('data-id');
-                            enterEditMode(id);
-                        });
-                    });
-                    document.querySelectorAll('.deleteBtn').forEach(btn => {
-                        btn.addEventListener('click', () => {
-                            const id = btn.getAttribute('data-id');
-                            deleteItem(id);
-                        });
-                    });
+                    allItems = data;
+                    sortItems(); // Sort items based on currentSort after loading
+                    updateSortArrows(); // Update arrows after initial sort
+                    // filterItems(); // This will be called by sortItems via renderTable if search is active
                 })
                 .catch(err => {
                     alert("Eroare la încărcarea articolelor.");
                     console.error('Eroare:', err);
                 });
+        }
+
+        function filterItems() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const searchByType = searchTypeSelect.value;
+            
+            let filteredItems = allItems;
+
+            if (searchTerm) {
+                if (searchByType === 'name') {
+                    filteredItems = allItems.filter(item => 
+                        item.name.toLowerCase().includes(searchTerm)
+                    );
+                } else if (searchByType === 'id') {
+                    // Ensure searchTerm is a number for ID comparison
+                    const searchId = parseInt(searchTerm, 10);
+                    if (!isNaN(searchId)) {
+                        filteredItems = allItems.filter(item => item.id === searchId);
+                    } else {
+                        // If searchTerm is not a valid number for ID search, show no results or all?
+                        // For now, show no results if ID search term is not a number.
+                        filteredItems = []; 
+                    }
+                }
+            }
+            // When filtering, we should render the filtered list, not re-sort the entire allItems list.
+            // The sorting is applied to allItems, and filtering happens on top of that.
+            // So, renderTable should be called with the result of filtering the already sorted allItems.
+            const itemsToDisplay = filteredItems; // This was a bit confusing, let's simplify.
+                                            // allItems is already sorted. We filter from it.
+            
+            // If we want the search to re-sort the *filtered* results, that's a different logic.
+            // For now, search filters the globally sorted list.
+            renderTable(itemsToDisplay);
+            // Update placeholder based on search type
+            searchInput.placeholder = searchByType === 'id' ? 'Caută după ID...' : 'Caută după nume...';
         }
 
         function submitItem() {
@@ -317,6 +583,8 @@
 
         // Încarcă articolele când pagina se încarcă
         loadItems();
+        updateSortArrows(); // Set initial sort arrows
+        filterItems(); // Apply initial filter (e.g. if search input is pre-filled or to set placeholder)
     </script>
 </body>
 </html>
